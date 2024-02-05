@@ -13,8 +13,8 @@ import MapKit
 class ViewController: MessagesViewController {
     var messages:[Message] = []
     var pressed:Bool!=false
-    var user1:Member! = .init(name: "Angelos Staboulis", color: .red)
-    var user2:Member! = .init(name: "Theodoros Staboulis", color: .green)
+    var member1:Member!
+    var member2:Member!
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
@@ -29,12 +29,14 @@ extension ViewController{
         messagesCollectionView.messagesDataSource = self
         messagesCollectionView.messagesLayoutDelegate = self
         messagesCollectionView.messagesDisplayDelegate = self
+        member1 = MessageViewModel.shared.createFirstMember()
+        member2 = MessageViewModel.shared.createSecondMember()
     }
 }
 extension ViewController:MessagesDataSource{
     
     func currentSender() -> MessageKit.SenderType {
-        return Sender(id: UUID().uuidString, displayName:user1.name)
+        return Sender(id: UUID().uuidString, displayName:member1.name)
     }
     
     func messageForItem(at indexPath: IndexPath, in messagesCollectionView: MessageKit.MessagesCollectionView) -> MessageKit.MessageType {
@@ -51,20 +53,19 @@ extension ViewController:MessagesDataSource{
 }
 
 extension ViewController:InputBarAccessoryViewDelegate{
-
+    func addMessage(message:Message,inputBar:InputBarAccessoryView){
+        messages.append(message)
+        messagesCollectionView.reloadData()
+        inputBar.inputTextView.text = ""
+        pressed.toggle()
+    }
     func inputBar(_ inputBar: InputBarAccessoryView, didPressSendButtonWith text: String) {
         if pressed {
-            let messageUser = Message(member: user2, text: text, messageId: UUID().uuidString)
-            messages.append(messageUser)
-            messagesCollectionView.reloadData()
-            inputBar.inputTextView.text = ""
-            pressed.toggle()
+            let messageUser = Message(member: member2, text: text, messageId: UUID().uuidString)
+           addMessage(message: messageUser, inputBar: inputBar)
         }else{
-            let messageUser = Message(member: user1, text: text, messageId: UUID().uuidString)
-            messages.append(messageUser)
-            messagesCollectionView.reloadData()
-            inputBar.inputTextView.text = ""
-            pressed.toggle()
+            let messageUser = Message(member: member1, text: text, messageId: UUID().uuidString)
+            addMessage(message: messageUser, inputBar: inputBar)
         }
     }
 
